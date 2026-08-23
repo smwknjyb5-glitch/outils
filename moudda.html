@@ -1,0 +1,354 @@
+ <!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>محاكاة المدة الزمنية</title>
+<style>
+  :root{
+    --navy:#0a1128;
+    --navy2:#111d40;
+    --gold:#d4af37;
+    --gold-soft:#f1d97a;
+    --text:#eef2ff;
+    --muted:#9aa4c7;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    background:radial-gradient(ellipse at top, var(--navy2), var(--navy) 70%);
+    color:var(--text);
+    font-family:"Tahoma","Segoe UI",Arial,sans-serif;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:24px 16px 60px;
+    overflow-x:hidden;
+    position:relative;
+  }
+  #stars{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+  }
+  .star{
+    position:absolute; width:2px; height:2px; background:#fff;
+    border-radius:50%; opacity:.6; animation:twinkle 3s infinite ease-in-out;
+  }
+  @keyframes twinkle{0%,100%{opacity:.15;}50%{opacity:.9;}}
+
+  h1{
+    z-index:1;
+    color:var(--gold);
+    font-size:1.6rem;
+    text-align:center;
+    margin:10px 0 4px;
+    text-shadow:0 0 12px rgba(212,175,55,.4);
+  }
+  p.subtitle{
+    z-index:1; color:var(--muted); margin:0 0 26px; text-align:center; font-size:.95rem;
+  }
+
+  .panel{
+    z-index:1;
+    background:rgba(17,29,64,.75);
+    border:1px solid rgba(212,175,55,.35);
+    border-radius:16px;
+    padding:22px;
+    width:100%;
+    max-width:760px;
+    box-shadow:0 8px 30px rgba(0,0,0,.4);
+    backdrop-filter:blur(6px);
+    margin-bottom:22px;
+  }
+
+  .field-row{
+    display:flex; flex-wrap:wrap; gap:14px; align-items:flex-end; justify-content:center;
+  }
+  .field{
+    display:flex; flex-direction:column; gap:6px; min-width:170px;
+  }
+  label{color:var(--gold-soft); font-size:.85rem;}
+  input[type="datetime-local"]{
+    background:var(--navy);
+    border:1px solid rgba(212,175,55,.4);
+    color:var(--text);
+    border-radius:8px;
+    padding:9px 10px;
+    font-size:.95rem;
+    color-scheme:dark;
+  }
+  .btn-row{display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:16px;}
+  button{
+    background:linear-gradient(135deg,var(--gold),#b8912b);
+    color:#1a1400;
+    border:none;
+    border-radius:8px;
+    padding:10px 18px;
+    font-weight:bold;
+    font-size:.9rem;
+    cursor:pointer;
+    transition:transform .15s, box-shadow .15s;
+  }
+  button:hover{transform:translateY(-2px); box-shadow:0 6px 16px rgba(212,175,55,.35);}
+  button.secondary{
+    background:transparent; color:var(--gold); border:1px solid var(--gold);
+  }
+  button.secondary:hover{background:rgba(212,175,55,.1);}
+
+  .mode-tabs{
+    display:flex; gap:8px; justify-content:center; margin-bottom:18px; z-index:1;
+  }
+  .mode-tabs button{
+    background:transparent; color:var(--muted); border:1px solid rgba(154,164,199,.4);
+    padding:8px 16px; font-weight:normal;
+  }
+  .mode-tabs button.active{
+    background:rgba(212,175,55,.15); color:var(--gold); border-color:var(--gold);
+    font-weight:bold;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(90px,1fr));
+    gap:12px;
+    margin-top:22px;
+  }
+  .cell{
+    background:radial-gradient(circle at 30% 20%, rgba(212,175,55,.12), transparent 70%), var(--navy);
+    border:1px solid rgba(212,175,55,.25);
+    border-radius:12px;
+    text-align:center;
+    padding:16px 6px;
+  }
+  .cell .num{
+    font-size:1.9rem;
+    font-weight:bold;
+    color:var(--gold);
+    text-shadow:0 0 10px rgba(212,175,55,.3);
+    font-variant-numeric:tabular-nums;
+  }
+  .cell .lbl{
+    color:var(--muted);
+    font-size:.8rem;
+    margin-top:4px;
+  }
+
+  .live-dot{
+    display:inline-block; width:8px; height:8px; border-radius:50%;
+    background:#4ade80; margin-left:6px; box-shadow:0 0 8px #4ade80;
+    animation:pulse 1.4s infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+  .status{
+    text-align:center; color:var(--muted); font-size:.85rem; margin-top:14px;
+  }
+
+  footer{
+    color:var(--muted); font-size:.75rem; margin-top:20px; text-align:center; z-index:1;
+  }
+
+  @media (max-width:480px){
+    h1{font-size:1.3rem;}
+    .cell .num{font-size:1.5rem;}
+  }
+</style>
+</head>
+<body>
+
+<div id="stars"></div>
+
+<h1>محاكاة المدة الزمنية ⏳</h1>
+<p class="subtitle">قرن &middot; سنة &middot; شهر &middot; يوم &middot; ساعة &middot; دقيقة &middot; ثانية</p>
+
+<div class="mode-tabs">
+  <button id="tabDuration" class="active">بين تاريخين</button>
+  <button id="tabCountdown">عدّ تنازلي لتاريخ</button>
+</div>
+
+<div class="panel">
+  <div class="field-row" id="fieldsDuration">
+    <div class="field">
+      <label for="startDate">التاريخ والوقت الأول</label>
+      <input type="datetime-local" id="startDate">
+    </div>
+    <div class="field">
+      <label for="endDate">التاريخ والوقت الثاني (اتركه فارغًا للحظة الحالية)</label>
+      <input type="datetime-local" id="endDate">
+    </div>
+  </div>
+
+  <div class="field-row" id="fieldsCountdown" style="display:none;">
+    <div class="field">
+      <label for="targetDate">التاريخ المستهدف</label>
+      <input type="datetime-local" id="targetDate">
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button id="calcBtn">احسب</button>
+    <button class="secondary" id="nowBtn">استخدم اللحظة الحالية</button>
+    <button class="secondary" id="liveBtn">تشغيل مباشر <span id="liveDot" style="display:none;" class="live-dot"></span></button>
+  </div>
+
+  <div class="grid" id="resultGrid"></div>
+  <div class="status" id="statusMsg"></div>
+</div>
+
+<footer>يعتمد الحساب على تقويم تقريبي: السنة ≈ 365.2425 يوم، الشهر ≈ 30.4369 يوم</footer>
+
+<script>
+  // خلفية نجوم بسيطة
+  const starsEl = document.getElementById('stars');
+  for(let i=0;i<80;i++){
+    const s = document.createElement('div');
+    s.className='star';
+    s.style.left = Math.random()*100+'%';
+    s.style.top = Math.random()*100+'%';
+    s.style.animationDelay = (Math.random()*3)+'s';
+    s.style.width = s.style.height = (Math.random()*2+1)+'px';
+    starsEl.appendChild(s);
+  }
+
+  const startInput = document.getElementById('startDate');
+  const endInput = document.getElementById('endDate');
+  const targetInput = document.getElementById('targetDate');
+  const resultGrid = document.getElementById('resultGrid');
+  const statusMsg = document.getElementById('statusMsg');
+  const liveDot = document.getElementById('liveDot');
+
+  const tabDuration = document.getElementById('tabDuration');
+  const tabCountdown = document.getElementById('tabCountdown');
+  const fieldsDuration = document.getElementById('fieldsDuration');
+  const fieldsCountdown = document.getElementById('fieldsCountdown');
+
+  let mode = 'duration'; // or 'countdown'
+  let liveInterval = null;
+
+  function toLocalInputValue(date){
+    const pad = n => String(n).padStart(2,'0');
+    return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  }
+
+  // تهيئة القيم الافتراضية
+  const now = new Date();
+  startInput.value = toLocalInputValue(new Date(now.getFullYear()-1, now.getMonth(), now.getDate(), now.getHours(), now.getMinutes()));
+  endInput.value = '';
+  targetInput.value = toLocalInputValue(new Date(now.getFullYear()+1, 0, 1, 0, 0));
+
+  tabDuration.addEventListener('click', ()=>{
+    mode='duration';
+    tabDuration.classList.add('active');
+    tabCountdown.classList.remove('active');
+    fieldsDuration.style.display='flex';
+    fieldsCountdown.style.display='none';
+    stopLive();
+    compute();
+  });
+  tabCountdown.addEventListener('click', ()=>{
+    mode='countdown';
+    tabCountdown.classList.add('active');
+    tabDuration.classList.remove('active');
+    fieldsCountdown.style.display='flex';
+    fieldsDuration.style.display='none';
+    stopLive();
+    compute();
+  });
+
+  document.getElementById('calcBtn').addEventListener('click', compute);
+  document.getElementById('nowBtn').addEventListener('click', ()=>{
+    const n = new Date();
+    if(mode==='duration'){ endInput.value = toLocalInputValue(n); }
+    else { targetInput.value = toLocalInputValue(n); }
+    compute();
+  });
+  document.getElementById('liveBtn').addEventListener('click', toggleLive);
+
+  function toggleLive(){
+    if(liveInterval){ stopLive(); }
+    else{
+      liveInterval = setInterval(compute, 1000);
+      liveDot.style.display='inline-block';
+      compute();
+    }
+  }
+  function stopLive(){
+    if(liveInterval){ clearInterval(liveInterval); liveInterval=null; }
+    liveDot.style.display='none';
+  }
+
+  const DAY_MS = 86400000;
+  const YEAR_DAYS = 365.2425;
+  const MONTH_DAYS = 30.436875;
+
+  function breakdownSeconds(totalSeconds){
+    let remaining = Math.floor(totalSeconds);
+    const CENTURY_S = Math.round(YEAR_DAYS*100*86400);
+    const YEAR_S = Math.round(YEAR_DAYS*86400);
+    const MONTH_S = Math.round(MONTH_DAYS*86400);
+    const DAY_S = 86400;
+    const HOUR_S = 3600;
+    const MIN_S = 60;
+
+    const centuries = Math.floor(remaining/CENTURY_S); remaining -= centuries*CENTURY_S;
+    const years = Math.floor(remaining/YEAR_S); remaining -= years*YEAR_S;
+    const months = Math.floor(remaining/MONTH_S); remaining -= months*MONTH_S;
+    const days = Math.floor(remaining/DAY_S); remaining -= days*DAY_S;
+    const hours = Math.floor(remaining/HOUR_S); remaining -= hours*HOUR_S;
+    const minutes = Math.floor(remaining/MIN_S); remaining -= minutes*MIN_S;
+    const seconds = remaining;
+
+    return {centuries, years, months, days, hours, minutes, seconds};
+  }
+
+  function renderGrid(bd, negative){
+    const items = [
+      [bd.centuries, 'قرن'],
+      [bd.years, 'سنة'],
+      [bd.months, 'شهر'],
+      [bd.days, 'يوم'],
+      [bd.hours, 'ساعة'],
+      [bd.minutes, 'دقيقة'],
+      [bd.seconds, 'ثانية'],
+    ];
+    resultGrid.innerHTML = items.map(([val,lbl])=>`
+      <div class="cell">
+        <div class="num">${negative?'-':''}${val}</div>
+        <div class="lbl">${lbl}</div>
+      </div>
+    `).join('');
+  }
+
+  function compute(){
+    let d1, d2;
+    if(mode==='duration'){
+      if(!startInput.value){ statusMsg.textContent='يرجى إدخال التاريخ الأول.'; resultGrid.innerHTML=''; return; }
+      d1 = new Date(startInput.value);
+      d2 = endInput.value ? new Date(endInput.value) : new Date();
+    } else {
+      if(!targetInput.value){ statusMsg.textContent='يرجى إدخال التاريخ المستهدف.'; resultGrid.innerHTML=''; return; }
+      d1 = new Date();
+      d2 = new Date(targetInput.value);
+    }
+
+    const diffMs = d2 - d1;
+    const negative = diffMs < 0;
+    const totalSeconds = Math.abs(diffMs)/1000;
+    const bd = breakdownSeconds(totalSeconds);
+    renderGrid(bd, negative);
+
+    if(mode==='countdown'){
+      statusMsg.textContent = negative
+        ? 'التاريخ المستهدف في الماضي — هذه هي المدة التي مرّت منذ ذلك التاريخ.'
+        : 'العدّ التنازلي حتى التاريخ المستهدف.';
+    } else {
+      statusMsg.textContent = negative
+        ? 'التاريخ الثاني قبل التاريخ الأول — تم عرض المدة المطلقة بينهما.'
+        : 'المدة الزمنية بين التاريخين.';
+    }
+  }
+
+  compute();
+</script>
+</body>
+</html>

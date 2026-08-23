@@ -1,0 +1,904 @@
+ <!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محاكاة علاجات الأرق - عيادة النوم التفاعلية</title>
+    <style>
+        :root {
+            --bg: #0a0e17;
+            --card: #131a2b;
+            --accent: #5b8def;
+            --accent2: #7c5ce7;
+            --gold: #d4a853;
+            --text: #d0d8e8;
+            --sub: #8899b4;
+            --border: #1e2a3d;
+            --danger: #e0556a;
+            --success: #4caf84;
+            --warm: #e8985e;
+            --breath-circle: #3a6bd5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Tahoma', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            background-image:
+                radial-gradient(ellipse at 20% 20%, rgba(91, 141, 239, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, rgba(124, 92, 231, 0.05) 0%, transparent 50%);
+            line-height: 1.7;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle var(--dur) ease-in-out infinite;
+            animation-delay: var(--delay);
+            opacity: 0;
+        }
+        @keyframes twinkle {
+            0%,
+            100% {
+                opacity: 0.2;
+            }
+            50% {
+                opacity: 0.9;
+            }
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            padding: 35px 20px 25px;
+        }
+        header h1 {
+            font-size: 2.3em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #b8cdf8, #c4b5f5, #d4a853);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+        header .moon-icon {
+            font-size: 3em;
+            display: block;
+            margin-bottom: 5px;
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-12px);
+            }
+        }
+        header p {
+            color: var(--sub);
+            font-size: 1.05em;
+        }
+
+        /* Tabs */
+        .tabs-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 25px;
+            justify-content: center;
+        }
+        .tab-btn {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--sub);
+            padding: 11px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: all 0.3s;
+            white-space: nowrap;
+            font-family: inherit;
+        }
+        .tab-btn:hover {
+            border-color: var(--accent);
+            color: #c8d8f8;
+            background: #1a2540;
+        }
+        .tab-btn.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(91, 141, 239, 0.3);
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeSlide 0.4s ease;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 28px;
+            margin-bottom: 22px;
+            transition: all 0.3s;
+        }
+        .card:hover {
+            border-color: #2a3d5c;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        .card h3 {
+            font-size: 1.25em;
+            margin-bottom: 15px;
+            color: #c8d8f8;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card h3 .icon {
+            font-size: 1.4em;
+        }
+
+        /* Breathing exercise */
+        .breath-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        .breath-circle-wrap {
+            position: relative;
+            width: 200px;
+            height: 200px;
+        }
+        .breath-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 40% 35%, #4a7de0, #1e3a70);
+            box-shadow: 0 0 50px rgba(74, 125, 224, 0.5), inset 0 0 30px rgba(255, 255, 255, 0.05);
+            transition: transform 0.1s linear;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 2px;
+        }
+        .breath-circle.inhale {
+            animation: breatheIn 4s ease-in-out forwards;
+        }
+        .breath-circle.hold {
+            animation: holdBreath 4s ease-in-out forwards;
+        }
+        .breath-circle.exhale {
+            animation: breatheOut 6s ease-in-out forwards;
+        }
+        @keyframes breatheIn {
+            from {
+                transform: scale(0.7);
+                box-shadow: 0 0 30px rgba(74, 125, 224, 0.3);
+            }
+            to {
+                transform: scale(1.3);
+                box-shadow: 0 0 80px rgba(91, 150, 239, 0.7);
+            }
+        }
+        @keyframes holdBreath {
+            from,
+            to {
+                transform: scale(1.3);
+                box-shadow: 0 0 80px rgba(91, 150, 239, 0.7);
+            }
+        }
+        @keyframes breatheOut {
+            from {
+                transform: scale(1.3);
+                box-shadow: 0 0 80px rgba(91, 150, 239, 0.7);
+            }
+            to {
+                transform: scale(0.7);
+                box-shadow: 0 0 20px rgba(74, 125, 224, 0.25);
+            }
+        }
+        .breath-phase {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #b8cdf8;
+            text-align: center;
+            min-height: 40px;
+            transition: all 0.3s;
+        }
+        .breath-controls {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .btn {
+            padding: 12px 26px;
+            border-radius: 30px;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            font-family: inherit;
+            transition: all 0.3s;
+            letter-spacing: 0.5px;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: #4a7de0;
+            box-shadow: 0 6px 20px rgba(74, 125, 224, 0.4);
+            transform: translateY(-2px);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+        }
+        .btn-outline:hover {
+            background: rgba(91, 141, 239, 0.1);
+        }
+        .btn-sm {
+            padding: 8px 18px;
+            font-size: 0.9em;
+        }
+        .btn-danger {
+            background: var(--danger);
+            color: #fff;
+        }
+        .btn-success {
+            background: var(--success);
+            color: #fff;
+        }
+
+        /* PMR */
+        .pmr-step {
+            text-align: center;
+            padding: 20px;
+        }
+        .pmr-body-part {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--warm);
+            margin: 15px 0;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 0.7;
+            }
+            50% {
+                opacity: 1;
+                text-shadow: 0 0 25px rgba(232, 152, 94, 0.6);
+            }
+        }
+        .pmr-instruction {
+            font-size: 1.2em;
+            color: #d0d8e8;
+            margin: 10px 0;
+        }
+        .progress-bar-wrap {
+            background: #1e2a3d;
+            border-radius: 20px;
+            height: 8px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            border-radius: 20px;
+            transition: width 0.5s ease;
+        }
+
+        /* Sleep hygiene checklist */
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            margin: 6px 0;
+            background: #0f1624;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+            user-select: none;
+        }
+        .checklist-item:hover {
+            border-color: #2a3d5c;
+        }
+        .checklist-item.done {
+            opacity: 0.6;
+            text-decoration: line-through;
+            border-color: var(--success);
+        }
+        .check-box {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            border: 2px solid var(--sub);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.3s;
+            font-size: 0.8em;
+        }
+        .checklist-item.done .check-box {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        /* Thought record */
+        .thought-card {
+            background: #0f1624;
+            border-radius: 14px;
+            padding: 20px;
+            margin: 12px 0;
+            border-right: 3px solid var(--accent2);
+        }
+        .thought-card.irrational {
+            border-right-color: var(--danger);
+        }
+        .thought-card.rational {
+            border-right-color: var(--success);
+        }
+        textarea {
+            width: 100%;
+            background: #0a0e17;
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 12px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.95em;
+            resize: vertical;
+            min-height: 70px;
+            transition: border 0.3s;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 12px rgba(91, 141, 239, 0.15);
+        }
+
+        /* Score display */
+        .score-display {
+            font-size: 3em;
+            font-weight: 700;
+            text-align: center;
+            color: var(--gold);
+        }
+        .score-label {
+            text-align: center;
+            color: var(--sub);
+            font-size: 0.9em;
+        }
+
+        /* Sound waves visual */
+        .sound-waves {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 4px;
+            height: 60px;
+            margin: 15px 0;
+        }
+        .wave-bar {
+            width: 8px;
+            border-radius: 4px;
+            background: var(--accent);
+            animation: waveAnim 0.8s ease-in-out infinite;
+            animation-delay: var(--d);
+        }
+        @keyframes waveAnim {
+            0%,
+            100% {
+                height: 10px;
+                opacity: 0.5;
+            }
+            50% {
+                height: 55px;
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 1.6em;
+            }
+            .tabs-nav {
+                gap: 4px;
+            }
+            .tab-btn {
+                padding: 8px 14px;
+                font-size: 0.8em;
+            }
+            .breath-circle-wrap {
+                width: 150px;
+                height: 150px;
+            }
+            .breath-circle {
+                width: 150px;
+                height: 150px;
+            }
+            .card {
+                padding: 18px;
+            }
+            @keyframes breatheIn {
+                from {
+                    transform: scale(0.7);
+                }
+                to {
+                    transform: scale(1.2);
+                }
+            }
+            @keyframes holdBreath {
+                from,
+                to {
+                    transform: scale(1.2);
+                }
+            }
+            @keyframes breatheOut {
+                from {
+                    transform: scale(1.2);
+                }
+                to {
+                    transform: scale(0.7);
+                }
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Stars background -->
+    <div class="stars" id="starsContainer"></div>
+
+    <div class="container">
+        <header>
+            <span class="moon-icon">🌙</span>
+            <h1>محاكاة علاجات الأرق</h1>
+            <p>أدوات تفاعلية مستوحاة من العلاج السلوكي المعرفي للأرق (CBT-I)</p>
+        </header>
+
+        <!-- Tabs Navigation -->
+        <nav class="tabs-nav" id="tabsNav">
+            <button class="tab-btn active" data-tab="breathing">🫁 التنفس العميق</button>
+            <button class="tab-btn" data-tab="pmr">💪 استرخاء العضلات</button>
+            <button class="tab-btn" data-tab="thoughts">🧠 إعادة هيكلة الأفكار</button>
+            <button class="tab-btn" data-tab="hygiene">🛏️ عادات النوم</button>
+            <button class="tab-btn" data-tab="relax">🎵 أصوات مهدئة</button>
+        </nav>
+
+        <!-- Tab: Breathing -->
+        <div class="tab-content active" id="tab-breathing">
+            <div class="card">
+                <h3><span class="icon">🫁</span> تمرين التنفس 4-4-6</h3>
+                <p style="color:var(--sub);margin-bottom:15px;">تقنية مثبتة علمياً لتهدئة الجهاز العصبي. اتبع الدائرة:</p>
+                <div class="breath-container">
+                    <div class="breath-circle-wrap">
+                        <div class="breath-circle" id="breathCircle">جاهز</div>
+                    </div>
+                    <div class="breath-phase" id="breathPhase">انقر "ابدأ" للمتابعة</div>
+                    <div class="sound-waves" id="breathWaves">
+                        <div class="wave-bar" style="--d:0s;"></div>
+                        <div class="wave-bar" style="--d:0.1s;"></div>
+                        <div class="wave-bar" style="--d:0.2s;"></div>
+                        <div class="wave-bar" style="--d:0.3s;"></div>
+                        <div class="wave-bar" style="--d:0.4s;"></div>
+                        <div class="wave-bar" style="--d:0.5s;"></div>
+                        <div class="wave-bar" style="--d:0.6s;"></div>
+                        <div class="wave-bar" style="--d:0.7s;"></div>
+                    </div>
+                    <div class="breath-controls">
+                        <button class="btn btn-primary" id="btnStartBreath">▶ ابدأ التمرين</button>
+                        <button class="btn btn-outline btn-sm" id="btnStopBreath">⏹ إيقاف</button>
+                    </div>
+                    <p style="color:var(--sub);font-size:0.85em;text-align:center;">شهيق 4 ثوانٍ | ثبات 4 ثوانٍ | زفير 6 ثوانٍ</p>
+                    <p style="text-align:center;color:var(--success);font-weight:600;" id="breathCycleCount"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: PMR -->
+        <div class="tab-content" id="tab-pmr">
+            <div class="card">
+                <h3><span class="icon">💪</span> استرخاء العضلات التدريجي (PMR)</h3>
+                <p style="color:var(--sub);margin-bottom:15px;">شد وإرخاء مجموعات العضلات بالتتابع لتقليل التوتر الجسدي.</p>
+                <div class="pmr-step" id="pmrDisplay">
+                    <div class="pmr-body-part" id="pmrPart">القدمان</div>
+                    <div class="pmr-instruction" id="pmrInstruction">شد عضلات القدمين بقوة لمدة 5 ثوانٍ...</div>
+                    <div class="progress-bar-wrap">
+                        <div class="progress-bar-fill" id="pmrProgress" style="width:0%;"></div>
+                    </div>
+                    <p style="color:var(--sub);" id="pmrTimer">5 ثوانٍ</p>
+                </div>
+                <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+                    <button class="btn btn-primary" id="btnStartPMR">▶ ابدأ جلسة الاسترخاء</button>
+                    <button class="btn btn-outline btn-sm" id="btnStopPMR">⏹ إيقاف</button>
+                </div>
+                <p style="text-align:center;color:var(--sub);font-size:0.85em;margin-top:10px;" id="pmrStatus">10 مجموعات عضلية | مدة الجلسة: ~5 دقائق</p>
+            </div>
+        </div>
+
+        <!-- Tab: Thoughts Restructuring -->
+        <div class="tab-content" id="tab-thoughts">
+            <div class="card">
+                <h3><span class="icon">🧠</span> إعادة هيكلة الأفكار المرتبطة بالنوم</h3>
+                <p style="color:var(--sub);margin-bottom:15px;">سجل أفكارك السلبية حول النوم ثم تحدَّها بأفكار أكثر توازناً.</p>
+                <div class="thought-card irrational" id="irrationalThoughtCard">
+                    <strong style="color:#e0556a;">💭 الفكرة السلبية التلقائية:</strong>
+                    <textarea id="irrationalThought" placeholder="مثال: لن أنام أبداً الليلة... سأكون منهكاً غداً..."></textarea>
+                </div>
+                <div class="thought-card rational" id="rationalThoughtCard">
+                    <strong style="color:#4caf84;">✅ الفكرة المتوازنة البديلة:</strong>
+                    <textarea id="rationalThought" placeholder="مثال: حتى لو نمت ساعات أقل، جسدي سيحصل على بعض الراحة..."></textarea>
+                </div>
+                <button class="btn btn-success" id="btnSaveThought">💾 احفظ التمرين</button>
+                <div id="savedThoughts" style="margin-top:15px;"></div>
+            </div>
+            <div class="card">
+                <h3><span class="icon">📋</span> تقييم شدة القلق المرتبط بالنوم</h3>
+                <p style="color:var(--sub);">ما مدى قلقك من عدم النوم الليلة؟ (0 = لا قلق، 10 = قلق شديد)</p>
+                <input type="range" min="0" max="10" value="5" id="anxietySlider" style="width:100%;accent-color:var(--accent);">
+                <div class="score-display" id="anxietyScore">5</div>
+                <div class="score-label">/ 10</div>
+                <p style="text-align:center;color:var(--sub);font-size:0.85em;" id="anxietyMsg">قلق معتدل — جرّب تمرين التنفس</p>
+            </div>
+        </div>
+
+        <!-- Tab: Sleep Hygiene -->
+        <div class="tab-content" id="tab-hygiene">
+            <div class="card">
+                <h3><span class="icon">🛏️</span> قائمة عادات النوم الصحية</h3>
+                <p style="color:var(--sub);margin-bottom:15px;">تتبع عاداتك اليومية. كلما التزمت أكثر، كان نومك أفضل.</p>
+                <div id="hygieneChecklist">
+                    <div class="checklist-item" data-id="1"><span class="check-box">✓</span> ذهبت للسرير في نفس الموعد</div>
+                    <div class="checklist-item" data-id="2"><span class="check-box">✓</span> استيقظت في نفس الموعد</div>
+                    <div class="checklist-item" data-id="3"><span class="check-box">✓</span> تجنبت الكافيين بعد الساعة 2 ظهراً</div>
+                    <div class="checklist-item" data-id="4"><span class="check-box">✓</span> لم أستخدم الشاشات قبل النوم بساعة</div>
+                    <div class="checklist-item" data-id="5"><span class="check-box">✓</span> كانت الغرفة مظلمة وهادئة وباردة</div>
+                    <div class="checklist-item" data-id="6"><span class="check-box">✓</span> قمت بنشاط مريح قبل النوم (قراءة، تأمل)</div>
+                    <div class="checklist-item" data-id="7"><span class="check-box">✓</span> تجنبت الوجبات الثقيلة قبل النوم</div>
+                </div>
+                <div style="text-align:center;margin-top:15px;">
+                    <span style="color:var(--gold);font-size:1.3em;font-weight:700;" id="hygieneScore">0</span>
+                    <span style="color:var(--sub);"> / 7 عادات مكتملة</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Relaxation Sounds -->
+        <div class="tab-content" id="tab-relax">
+            <div class="card">
+                <h3><span class="icon">🎵</span> محاكاة أصوات مهدئة</h3>
+                <p style="color:var(--sub);margin-bottom:15px;">اختر صوتاً مهدئاً للمساعدة على الاسترخاء (محاكاة بصرية).</p>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:20px;">
+                    <button class="btn btn-outline btn-sm sound-btn active" data-sound="rain">🌧️ المطر</button>
+                    <button class="btn btn-outline btn-sm sound-btn" data-sound="ocean">🌊 أمواج البحر</button>
+                    <button class="btn btn-outline btn-sm sound-btn" data-sound="forest">🌲 الغابة</button>
+                    <button class="btn btn-outline btn-sm sound-btn" data-sound="whitenoise">📡 ضوضاء بيضاء</button>
+                </div>
+                <div class="sound-waves" id="relaxWaves" style="height:80px;">
+                    <div class="wave-bar" style="--d:0s;width:10px;"></div>
+                    <div class="wave-bar" style="--d:0.08s;width:10px;"></div>
+                    <div class="wave-bar" style="--d:0.16s;width:10px;"></div>
+                    <div class="wave-bar" style="--d:0.24s;width:10px;"></div>
+                    <div class="wave-bar" style="--d:0.32s;width:10px;"></div>
+                    <div class="wave-bar" style="--d:0.4s;width:10px;"></div>
+                    <div class="wave-bar" style="--d:0.48s;width:10px;"></div>
+                    <div class="wave-bar" style="--d:0.56s;width:10px;"></div>
+                    <div class="wave-bar" style="--d:0.64s;width:10px;"></div>
+                    <div class="wave-bar" style="--d:0.72s;width:10px;"></div>
+                </div>
+                <p style="text-align:center;color:var(--sub);" id="soundLabel">صوت المطر 🎧</p>
+                <p style="text-align:center;color:var(--sub);font-size:0.8em;">(محاكاة مرئية — استخدم سماعات للحصول على تأثير حقيقي)</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============ STARS BACKGROUND ============
+        (function createStars() {
+            const container = document.getElementById('starsContainer');
+            for (let i = 0; i < 80; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                const size = Math.random() * 2.5 + 1;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.setProperty('--dur', (Math.random() * 3 + 2) + 's');
+                star.style.setProperty('--delay', (Math.random() * 5) + 's');
+                container.appendChild(star);
+            }
+        })();
+
+        // ============ TAB SWITCHING ============
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const target = btn.getAttribute('data-tab');
+                tabContents.forEach(tc => tc.classList.remove('active'));
+                document.getElementById('tab-' + target).classList.add('active');
+                // Stop any running animations when switching
+                stopBreathing();
+                stopPMR();
+            });
+        });
+
+        // ============ BREATHING EXERCISE ============
+        let breathInterval = null;
+        let breathCycle = 0;
+        const breathCircle = document.getElementById('breathCircle');
+        const breathPhase = document.getElementById('breathPhase');
+        const breathCycleCount = document.getElementById('breathCycleCount');
+        const breathWaves = document.getElementById('breathWaves');
+
+        function stopBreathing() {
+            if (breathInterval) clearInterval(breathInterval);
+            breathInterval = null;
+            breathCircle.className = 'breath-circle';
+            breathCircle.textContent = 'جاهز';
+            breathPhase.textContent = 'انقر "ابدأ" للمتابعة';
+            breathCycleCount.textContent = '';
+            breathWaves.querySelectorAll('.wave-bar').forEach(b => b.style.animationPlayState = 'paused');
+        }
+
+        function runBreathCycle() {
+            breathCycle++;
+            breathCycleCount.textContent = 'الدورة رقم: ' + breathCycle;
+            breathWaves.querySelectorAll('.wave-bar').forEach(b => b.style.animationPlayState = 'running');
+
+            // Inhale 4s
+            breathCircle.className = 'breath-circle inhale';
+            breathCircle.textContent = 'شهيق';
+            breathPhase.textContent = '🟢 استنشق ببطء من الأنف... (4 ثوانٍ)';
+            breathPhase.style.color = '#5b8def';
+
+            setTimeout(() => {
+                if (!breathInterval) return;
+                // Hold 4s
+                breathCircle.className = 'breath-circle hold';
+                breathCircle.textContent = 'ثبات';
+                breathPhase.textContent = '🟡 احبس النفس برفق... (4 ثوانٍ)';
+                breathPhase.style.color = '#d4a853';
+            }, 4000);
+
+            setTimeout(() => {
+                if (!breathInterval) return;
+                // Exhale 6s
+                breathCircle.className = 'breath-circle exhale';
+                breathCircle.textContent = 'زفير';
+                breathPhase.textContent = '🔵 أطلق الزفير ببطء من الفم... (6 ثوانٍ)';
+                breathPhase.style.color = '#7c5ce7';
+            }, 8000);
+
+            // Next cycle after full 14s
+            setTimeout(() => {
+                if (breathInterval) runBreathCycle();
+            }, 14000);
+        }
+
+        document.getElementById('btnStartBreath').addEventListener('click', () => {
+            stopBreathing();
+            breathCycle = 0;
+            breathInterval = true; // marker
+            runBreathCycle();
+        });
+        document.getElementById('btnStopBreath').addEventListener('click', stopBreathing);
+
+        // ============ PMR (Progressive Muscle Relaxation) ============
+        const pmrGroups = [
+            { part: 'القدمان', instruction: 'شد عضلات القدمين بقوة... ارفع الأصابع للأعلى' },
+            { part: 'الساقان', instruction: 'شد عضلات الساقين والفخذين...' },
+            { part: 'الأرداف', instruction: 'اقبض عضلات الأرداف بقوة...' },
+            { part: 'البطن', instruction: 'شد عضلات البطن كما لو كنت تستعد لضربة...' },
+            { part: 'الصدر والظهر', instruction: 'خذ نفساً عميقاً وشد عضلات الصدر والظهر...' },
+            { part: 'الذراعان', instruction: 'اقبض عضلات الذراعين واقبض القبضتين...' },
+            { part: 'الكتفان', instruction: 'ارفع الكتفين نحو الأذنين وشدّهما...' },
+            { part: 'الرقبة', instruction: 'شد عضلات الرقبة برفق (بحذر)...' },
+            { part: 'الوجه والفك', instruction: 'أغلق العينين بقوة وشد عضلات الوجه والفك...' },
+            { part: 'الجسم كاملاً', instruction: 'شد جميع العضلات معاً... ثم استرخِ تماماً' },
+        ];
+        let pmrIndex = 0;
+        let pmrInterval = null;
+        let pmrCountdown = 5;
+        let pmrCountdownInterval = null;
+
+        function stopPMR() {
+            if (pmrInterval) clearInterval(pmrInterval);
+            if (pmrCountdownInterval) clearInterval(pmrCountdownInterval);
+            pmrInterval = null;
+            pmrCountdownInterval = null;
+            pmrIndex = 0;
+            pmrCountdown = 5;
+            document.getElementById('pmrPart').textContent = 'القدمان';
+            document.getElementById('pmrInstruction').textContent = 'شد عضلات القدمين بقوة لمدة 5 ثوانٍ...';
+            document.getElementById('pmrProgress').style.width = '0%';
+            document.getElementById('pmrTimer').textContent = '5 ثوانٍ';
+            document.getElementById('pmrStatus').textContent = '10 مجموعات عضلية | مدة الجلسة: ~5 دقائق';
+        }
+
+        function runPMRStep() {
+            if (pmrIndex >= pmrGroups.length) {
+                document.getElementById('pmrPart').textContent = '✅ انتهت الجلسة';
+                document.getElementById('pmrInstruction').textContent =
+                    'أحسنت! لاحظ الفرق في استرخاء جسمك الآن.';
+                document.getElementById('pmrProgress').style.width = '100%';
+                document.getElementById('pmrTimer').textContent = '';
+                document.getElementById('pmrStatus').textContent = 'جلسة مكتملة — خذ نفساً عميقاً';
+                stopPMR();
+                return;
+            }
+            const group = pmrGroups[pmrIndex];
+            document.getElementById('pmrPart').textContent = group.part;
+            document.getElementById('pmrInstruction').textContent = '💪 ' + group.instruction + ' (شدّ)';
+            document.getElementById('pmrProgress').style.width = ((pmrIndex / pmrGroups.length) * 100) + '%';
+            document.getElementById('pmrStatus').textContent =
+                'المجموعة ' + (pmrIndex + 1) + ' من ' + pmrGroups.length;
+
+            pmrCountdown = 5;
+            document.getElementById('pmrTimer').textContent = pmrCountdown + ' ثوانٍ — شد العضلات';
+            if (pmrCountdownInterval) clearInterval(pmrCountdownInterval);
+            pmrCountdownInterval = setInterval(() => {
+                pmrCountdown--;
+                document.getElementById('pmrTimer').textContent = pmrCountdown + ' ثوانٍ — شد العضلات';
+                if (pmrCountdown <= 0) {
+                    clearInterval(pmrCountdownInterval);
+                    pmrCountdownInterval = null;
+                    // Relax phase
+                    document.getElementById('pmrInstruction').textContent =
+                        '😌 استرخِ... لاحظ الفرق (إرخاء)';
+                    document.getElementById('pmrTimer').textContent = 'استرخاء...';
+                    setTimeout(() => {
+                        pmrIndex++;
+                        if (pmrInterval) runPMRStep();
+                    }, 4000);
+                }
+            }, 1000);
+        }
+
+        document.getElementById('btnStartPMR').addEventListener('click', () => {
+            stopPMR();
+            pmrIndex = 0;
+            pmrCountdown = 5;
+            pmrInterval = true;
+            runPMRStep();
+        });
+        document.getElementById('btnStopPMR').addEventListener('click', stopPMR);
+
+        // ============ THOUGHT RESTRUCTURING ============
+        const savedThoughtsDiv = document.getElementById('savedThoughts');
+        document.getElementById('btnSaveThought').addEventListener('click', () => {
+            const irrational = document.getElementById('irrationalThought').value.trim();
+            const rational = document.getElementById('rationalThought').value.trim();
+            if (!irrational && !rational) {
+                alert('الرجاء كتابة فكرة سلبية وفكرة بديلة على الأقل.');
+                return;
+            }
+            const entry = document.createElement('div');
+            entry.style.cssText =
+                'background:#0f1624;border-radius:10px;padding:14px;margin:8px 0;border-right:3px solid var(--success);';
+            entry.innerHTML =
+                '<strong style="color:#e0556a;">💭 الفكرة:</strong> ' + (irrational || '—') +
+                '<br><strong style="color:#4caf84;">✅ البديل:</strong> ' + (rational || '—') +
+                '<br><small style="color:var(--sub);">🕒 ' + new Date().toLocaleTimeString('ar-SA') + '</small>';
+            savedThoughtsDiv.prepend(entry);
+            document.getElementById('irrationalThought').value = '';
+            document.getElementById('rationalThought').value = '';
+        });
+
+        // Anxiety slider
+        const anxietySlider = document.getElementById('anxietySlider');
+        const anxietyScore = document.getElementById('anxietyScore');
+        const anxietyMsg = document.getElementById('anxietyMsg');
+        anxietySlider.addEventListener('input', () => {
+            const val = parseInt(anxietySlider.value);
+            anxietyScore.textContent = val;
+            if (val <= 3) anxietyMsg.textContent = 'قلق منخفض — أنت في حالة جيدة نسبياً';
+            else if (val <= 6) anxietyMsg.textContent = 'قلق معتدل — جرّب تمرين التنفس أو استرخاء العضلات';
+            else anxietyMsg.textContent = 'قلق مرتفع — خذ وقتاً لتمرين إعادة هيكلة الأفكار أعلاه';
+        });
+
+        // ============ SLEEP HYGIENE CHECKLIST ============
+        const checklistItems = document.querySelectorAll('#hygieneChecklist .checklist-item');
+        const hygieneScoreEl = document.getElementById('hygieneScore');
+        checklistItems.forEach(item => {
+            item.addEventListener('click', () => {
+                item.classList.toggle('done');
+                updateHygieneScore();
+            });
+        });
+
+        function updateHygieneScore() {
+            const done = document.querySelectorAll('#hygieneChecklist .checklist-item.done').length;
+            hygieneScoreEl.textContent = done;
+        }
+
+        // ============ RELAXATION SOUNDS ============
+        const soundBtns = document.querySelectorAll('.sound-btn');
+        const soundLabel = document.getElementById('soundLabel');
+        const relaxWaves = document.getElementById('relaxWaves');
+        soundBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                soundBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const sound = btn.getAttribute('data-sound');
+                const labels = { rain: 'صوت المطر 🌧️', ocean: 'صوت أمواج البحر 🌊', forest: 'صوت الغابة 🌲',
+                    whitenoise: 'ضوضاء بيضاء 📡' };
+                soundLabel.textContent = labels[sound] || sound;
+
+                // Vary wave animation speed based on sound
+                const speeds = { rain: '0.6s', ocean: '1.2s', forest: '0.9s', whitenoise: '0.3s' };
+                relaxWaves.querySelectorAll('.wave-bar').forEach(bar => {
+                    bar.style.animationDuration = speeds[sound] || '0.8s';
+                });
+            });
+        });
+
+        // Initial hygiene score
+        updateHygieneScore();
+
+        console.log('🌙 محاكاة علاجات الأرق جاهزة. نوماً هنيئاً!');
+        console.log('الأدوات المتاحة: التنفس 4-4-6 | استرخاء العضلات | إعادة هيكلة الأفكار | عادات النوم | أصوات مهدئة');
+    </script>
+</body>
+</html>
